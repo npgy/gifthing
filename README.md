@@ -17,8 +17,8 @@ Extract it and copy it to the sd card
 Copy `headless.apkovl.tar.gz` from https://github.com/macmpi/alpine-linux-headless-bootstrap
 into the root of the SD card
 
-This come with a private key built in, you'll need to copy this and use it to SSH into the initial setup environment.
-It's located at `tmp/.ALHB/ssh_host_rsa_key`
+This comes with a private key built in, you'll need to use it to SSH into the initial setup environment.
+It's located at `tmp/.ALHB/ssh_host_rsa_key` inside the tarball
 
 Copy all files in the `unattended_files` folder to the root of the SD card.  
 Update `wpa_supplicant.conf` with your wifi SSID and password.
@@ -57,8 +57,8 @@ Ideally though, the gifthing service will autoboot and play the file at `/root/m
 
 ## Make booting cleaner
 
-Add `gifthing` to openrc  
-Copy to `/etc/init.d/gifthing`
+To add `gifthing` to the init system  
+Copy it to `/etc/init.d/gifthing`
 
 Add it to the default runlevel  
 `rc-update add gifthing`
