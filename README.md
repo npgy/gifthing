@@ -77,3 +77,6 @@ with your wifi ssid and password
 
 Install fbi and a monospace font  
 `apk add fbida-fbi ttf-dejavu`
+
+And here's how to display an image  
+`fbi -a --noverbose img.webp`
