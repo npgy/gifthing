@@ -72,3 +72,8 @@ Comment out all ttys in /etc/inittab
 On another computer, plug in the SD card,
 then edit `/etc/wpa_supplicant/wpa_supplicant.conf`
 with your wifi ssid and password
+
+# Viewing images on the framebuffer
+
+Install fbi and a monospace font  
+`apk add fbida-fbi ttf-dejavu`
