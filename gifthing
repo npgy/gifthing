@@ -1,7 +1,6 @@
 #!/sbin/openrc-run
 
 name="gifthing"
-command="/usr/bin/mpv"
+command="/opt/gifthing"
 command_background=true
 pidfile="/run/${RC_SVCNAME}.pid"
-command_args="--loop=inf /root/main.mp4"

@@ -37,7 +37,7 @@ var t = &Template{
 var mpvCmd *exec.Cmd
 var mpvLock = sync.Mutex{}
 
-var rootMp4Path = "/Users/nick/"
+var rootMp4Path = "/root/"
 
 func main() {
 	logger, err := NewLogger()
