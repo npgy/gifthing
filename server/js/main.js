@@ -92,15 +92,19 @@ async function sendToGifthing() {
   goButton.disabled = true;
   loading.classList.add("show");
 
-  let res = await fetch("/setgif", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ gifUrl: url }),
-  });
+  try {
+    let res = await fetch("/setgif", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ gifUrl: url }),
+    });
 
-  console.log(await res.json());
+    console.log(await res.json());
+  } catch (error) {
+    console.error("Error sending GIF URL:", error);
+  }
 
   goButton.disabled = false;
   loading.classList.remove("show");

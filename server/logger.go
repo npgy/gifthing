@@ -27,6 +27,13 @@ func NewLogger() (*Logger, error) {
 	return l, nil
 }
 
+func (l *Logger) LogSimple(level slog.Level, msg string, details string) {
+	slogAttrs := []slog.Attr{
+		slog.String("details", details),
+	}
+	l.LogAttrs(context.Background(), level, msg, slogAttrs...)
+}
+
 func (l *Logger) LogAttrs(ctx context.Context, level slog.Level, msg string, attrs ...slog.Attr) {
 	l.stdoutLogger.LogAttrs(ctx, level, msg, attrs...)
 	l.fileLogger.LogAttrs(ctx, level, msg, attrs...)

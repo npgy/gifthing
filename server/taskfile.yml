@@ -1,6 +1,6 @@
-version: '3'
+version: "3"
 
-dotenv: ['.env', '{{.ENV}}/.env.', '{{.HOME}}/.env']
+dotenv: [".env", "{{.ENV}}/.env.", "{{.HOME}}/.env"]
 
 tasks:
   init:
@@ -9,3 +9,6 @@ tasks:
   dev:
     cmds:
       - air -c air.toml
+  build:
+    cmds:
+      - go build -ldflags "-w -s" -v -o dist/gifthing .

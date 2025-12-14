@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"context"
 	"embed"
 	"fmt"
@@ -10,6 +9,8 @@ import (
 	"log/slog"
 	"net/http"
 	"os/exec"
+	"sync"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -34,6 +35,9 @@ var t = &Template{
 }
 
 var mpvCmd *exec.Cmd
+var mpvLock = sync.Mutex{}
+
+var rootMp4Path = "/Users/nick/"
 
 func main() {
 	logger, err := NewLogger()
@@ -72,32 +76,53 @@ func main() {
 			return echo.NewHTTPError(400, "gifUrl not sent in body")
 		}
 
-		if mpvCmd != nil && mpvCmd.Process != nil {
-			err := mpvCmd.Process.Kill()
-			if err != nil {
-				return echo.NewHTTPError(500, fmt.Errorf("failed to kill existing mpv process: %v", err))
-			}
+		err = killMpv(logger)
+		if err != nil {
+			return err
 		}
 
-		mpvCmd = exec.Command("mpv", "--loop=inf", "/Users/nick/andfm.mp4")
-		stdout, err := mpvCmd.StdoutPipe()
-		if err != nil {
-			return echo.NewHTTPError(500, fmt.Errorf("failed to get mpv stdout pipe: %v", err))
-		}
+		showLoadingScreen(logger)
+		time.Sleep(3000 * time.Millisecond)
 
 		go func() {
-			scanner := bufio.NewScanner(stdout)
-			for scanner.Scan() {
-				logger.LogAttrs(context.Background(), slog.LevelInfo, "MPV_OUTPUT", slog.Attr{Key: "mpvout", Value: slog.StringValue(scanner.Text())})
+			curlCmd := exec.Command("curl", req.GifURL, "-o", rootMp4Path+"main.mp4")
+			stdout, err := curlCmd.StdoutPipe()
+			if err != nil {
+				logger.LogSimple(slog.LevelError, "CURL_OUTPUT", fmt.Sprintf("error getting curl stdout: %v", err))
+				showErrorScreen(logger)
+				return
 			}
+
+			logger.LogSimple(slog.LevelInfo, "CURL_OUTPUT", fmt.Sprintf("beginning to download %s", req.GifURL))
+
+			ctx, cancel := context.WithCancel(context.Background())
+			go pumpStdOut(ctx, cancel, stdout, "CURL_OUTPUT", logger)
+
+			err = curlCmd.Start()
+			if err != nil {
+				logger.LogSimple(slog.LevelError, "CURL_OUTPUT", fmt.Sprintf("error starting curl command: %v", err))
+				showErrorScreen(logger)
+				return
+			}
+
+			err = killMpv(logger)
+			if err != nil {
+				logger.LogSimple(slog.LevelError, "MPV_OUTPUT", fmt.Sprintf("error killing mpv: %v", err))
+				return
+			}
+
+			mpvLock.Lock()
+			defer mpvLock.Unlock()
+			mpvCmd, err = startMpv("main.mp4", logger)
+			// monitorMpvExit(mpvCmd, logger)
+			// if err != nil {
+			// 	logger.LogSimple(slog.LevelError, "MPV_OUTPUT", fmt.Sprintf("error starting mpv on main.mp4: %v", err))
+			// 	showErrorScreen(logger)
+			// 	return
+			// }
 		}()
 
-		err = mpvCmd.Start()
-		if err != nil {
-			return echo.NewHTTPError(500, fmt.Errorf("failed to start mpv command, is the binary installed? : %v", err))
-		}
-
-		return c.JSON(200, req)
+		return c.NoContent(201)
 	})
 
 	e.Start(":8080")

@@ -27,3 +27,5 @@ tmp/
 
 .DS_Store
 gifthing.log
+
+dist/
