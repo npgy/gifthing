@@ -203,6 +203,9 @@ main() {
         fi
     fi
 
+    # Stop service if running
+    rc-service gifthing stop
+
     # Download and install
     if download_release "$latest_version"; then
         update_version_file "$latest_version"
@@ -212,8 +215,11 @@ main() {
         if command -v "$BINARY_NAME" &> /dev/null; then
             log "Verification: $("$BINARY_NAME" --version 2>/dev/null || echo "Binary installed successfully")"
         fi
+
+        rc-service gifthing start
     else
         error "Failed to update $PROGRAM_NAME"
+        rc-service gifthing start
         exit 1
     fi
 }
