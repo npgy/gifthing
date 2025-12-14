@@ -39,7 +39,7 @@ Uncomment that line in `/etc/apk/repositories`
 
 Now lets add some stuff
 
-`apk add curl mpv ffmpeg`
+`apk add curl mpv ffmpeg jq`
 
 If we have a gif file, first convert it to mp4
 `ffmpeg -i punch.gif punch.mp4`

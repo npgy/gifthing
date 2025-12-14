@@ -47,6 +47,8 @@ func main() {
 	}
 	defer logger.logFile.Close()
 
+	startMpv("main.mp4", logger)
+
 	e := echo.New()
 	e.Renderer = t
 
