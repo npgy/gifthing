@@ -80,3 +80,9 @@ Install fbi and a monospace font
 
 And here's how to display an image  
 `fbi -a --noverbose img.webp`
+
+## Local domain name resolution
+
+Install avahi using these guides
+https://wiki.alpinelinux.org/wiki/MDNS  
+https://github.com/LouisBrunner/avahi2dns

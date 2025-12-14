@@ -39,10 +39,12 @@ var mpvCmd *exec.Cmd
 var mpvLock = sync.Mutex{}
 
 var rootMp4Path = "/root/"
+var testMode = false
 
 func main() {
 	if os.Getenv("TESTMODE") == "true" {
 		rootMp4Path = "/Users/nick/"
+		testMode = true
 	}
 	logger, err := NewLogger()
 	if err != nil {
@@ -135,5 +137,9 @@ func main() {
 		return c.NoContent(201)
 	})
 
-	e.Start(":8080")
+	port := 80
+	if testMode {
+		port = 8080
+	}
+	e.Start(fmt.Sprintf(":%d", port))
 }
