@@ -63,7 +63,7 @@ version_gt() {
     local ver2="${2#v}"
 
     # Simple version comparison
-    printf '%s\n%s\n' "$ver2" "$ver1" | sort -V -C
+    printf '%s\n%s\n' "$ver2" "$ver1" | sort -V -c
 }
 
 # Download and extract release
