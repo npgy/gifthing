@@ -2,8 +2,7 @@ name: Release
 
 on:
   push:
-    tags:
-      - "v*.*.*"
+    branches: ["main"]
 
 permissions:
   contents: write
@@ -13,6 +12,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Get tag
+        id: gen-tag
+        run: |
+          version=$(cat server/version.json | jq -r .version)
+          echo tag="v$version" >> $GITHUB_OUTPUT
+      - name: Push tag to repo
+        uses: actions/github-script@v8
+        with:
+          script: |
+            github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: 'refs/tags/${{steps.gen-tag.outputs.tag}}',
+              sha: context.sha
+            })
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
@@ -21,18 +35,8 @@ jobs:
         uses: goreleaser/goreleaser-action@v6
         with:
           distribution: goreleaser
-          version: ${{ env.GITHUB_REF_NAME }}
+          version: ${{steps.gen-tag.outputs.tag}}
           args: release --clean
           workdir: ./server
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  npm-publish:
-    needs: goreleaser
-    permissions:
-      contents: read
-      id-token: write
-    uses: ./.github/workflows/npm-publish.yml
-    with:
-      tag: ${{ github.ref_name }}
-    secrets: inherit
