@@ -8,6 +8,7 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"os"
 	"os/exec"
 	"sync"
 	"time"
@@ -40,6 +41,9 @@ var mpvLock = sync.Mutex{}
 var rootMp4Path = "/root/"
 
 func main() {
+	if os.Getenv("TESTMODE") == "true" {
+		rootMp4Path = "/Users/nick/"
+	}
 	logger, err := NewLogger()
 	if err != nil {
 		slog.Error("failed to initialize logger", slog.String("error", err.Error()))
@@ -47,7 +51,11 @@ func main() {
 	}
 	defer logger.logFile.Close()
 
-	startMpv("main.mp4", logger)
+	mpvCmd, err = startMpv("main.mp4", logger)
+	if err != nil {
+		slog.Error("failed to start mpv", slog.String("error", err.Error()))
+		return
+	}
 
 	e := echo.New()
 	e.Renderer = t
