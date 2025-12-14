@@ -1,9 +1,9 @@
-#!/bin/bash
+#!/bin/sh
 
 # Configuration
 REPO="npgy/gifthing"                    # Change to your repo
 PROGRAM_NAME="gifthing"             # Name of your program
-INSTALL_DIR="/opt/gifthing/gifthing"         # Where to install
+INSTALL_DIR="/opt/gifthing"         # Where to install
 VERSION_FILE="$HOME/.${PROGRAM_NAME}_version"  # Track current version
 BINARY_NAME="$PROGRAM_NAME"          # Name of the binary in releases
 ASSET_PATTERN="linux_arm64"          # Pattern to match release asset
