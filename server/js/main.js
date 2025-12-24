@@ -1,5 +1,15 @@
 let isValidUrl = false;
 
+// Helper function to check if URL is a Tenor URL
+function isTenorUrl(url) {
+  try {
+    const urlObj = new URL(url);
+    return urlObj.hostname.includes("tenor.com");
+  } catch (e) {
+    return false;
+  }
+}
+
 // URL validation function
 function validateGifUrl(url) {
   try {
@@ -12,12 +22,17 @@ function validateGifUrl(url) {
       return "Please enter a valid URL";
     }
 
+    // Check if it's a Tenor URL
+    if (urlObj.hostname.includes("tenor.com")) {
+      return null; // Tenor URLs are valid
+    }
+
     const hasValidExtension = validExtensions.some((ext) =>
-      urlObj.pathname.toLowerCase().includes(ext),
+      urlObj.pathname.toLowerCase().includes(ext)
     );
 
     if (!hasValidExtension) {
-      return "URL must be a gif or mp4 file";
+      return "URL must be a Tenor, gif, or mp4 url";
     }
 
     return null;
@@ -93,17 +108,44 @@ async function sendToGifthing() {
   loading.classList.add("show");
 
   try {
+    let finalUrl = url;
+
+    // If it's a Tenor URL, get the MP4 URL first
+    if (isTenorUrl(url)) {
+      const tenorRes = await fetch("/tenor-mp4", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ tenorGifUrl: url }),
+      });
+
+      if (!tenorRes.ok) {
+        throw new Error(`Failed to get MP4 URL from Tenor: ${tenorRes.status}`);
+      }
+
+      const tenorData = await tenorRes.json();
+      finalUrl = tenorData.mp4Url;
+      console.log("Got MP4 URL from Tenor:", finalUrl);
+    }
+
+    // Now call setgif with the final URL (either original or converted MP4)
     let res = await fetch("/setgif", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ gifUrl: url }),
+      body: JSON.stringify({ gifUrl: finalUrl }),
     });
 
-    console.log(await res.json());
+    if (!res.ok) {
+      throw new Error(`Failed to set GIF: ${res.status}`);
+    }
+
+    console.log("Successfully sent to gifthing");
   } catch (error) {
-    console.error("Error sending GIF URL:", error);
+    console.error("Error processing URL:", error);
+    showError("Failed to process URL. Please try again.");
   }
 
   goButton.disabled = false;

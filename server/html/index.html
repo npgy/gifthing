@@ -1,204 +1,203 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>{{.Title}}</title>
-        <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{.Title}}</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-            body {
-                font-family:
-                    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-                    Oxygen, Ubuntu, Cantarell, sans-serif;
-                background: #000;
-                color: #fff;
-                line-height: 1.6;
-                min-height: 100vh;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                padding: 2rem;
-            }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, Cantarell, sans-serif;
+        background: #000;
+        color: #fff;
+        line-height: 1.6;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 2rem;
+      }
 
-            .container {
-                max-width: 500px;
-                width: 100%;
-                text-align: center;
-            }
+      .container {
+        max-width: 500px;
+        width: 100%;
+        text-align: center;
+      }
 
-            .brand {
-                font-size: 2.8rem;
-                font-weight: 500;
-                margin-bottom: 0.5rem;
-                /*letter-spacing: 0.05em;*/
-                color: #fff;
-            }
+      .brand {
+        font-size: 2.8rem;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        /*letter-spacing: 0.05em;*/
+        color: #fff;
+      }
 
-            .subtitle {
-                font-size: 1rem;
-                color: #666;
-                margin-bottom: 4rem;
-                font-weight: 300;
-            }
+      .subtitle {
+        font-size: 1rem;
+        color: #666;
+        margin-bottom: 4rem;
+        font-weight: 300;
+      }
 
-            .input-section {
-                margin-bottom: 3rem;
-            }
+      .input-section {
+        margin-bottom: 3rem;
+      }
 
-            .url-input {
-                width: 100%;
-                padding: 1.2rem 1.5rem;
-                font-size: 1rem;
-                border: 1px solid #333;
-                border-radius: 8px;
-                background: #111;
-                color: #fff;
-                outline: none;
-                transition: all 0.3s ease;
-                margin-bottom: 1.5rem;
-            }
+      .url-input {
+        width: 100%;
+        padding: 1.2rem 1.5rem;
+        font-size: 1rem;
+        border: 1px solid #333;
+        border-radius: 8px;
+        background: #111;
+        color: #fff;
+        outline: none;
+        transition: all 0.3s ease;
+        margin-bottom: 1.5rem;
+      }
 
-            .url-input::placeholder {
-                color: #555;
-            }
+      .url-input::placeholder {
+        color: #555;
+      }
 
-            .url-input:focus {
-                border-color: #555;
-                background: #1a1a1a;
-                box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
-            }
+      .url-input:focus {
+        border-color: #555;
+        background: #1a1a1a;
+        box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+      }
 
-            .url-input.error {
-                border-color: #ff4444;
-                box-shadow: 0 0 0 3px rgba(255, 68, 68, 0.1);
-            }
+      .url-input.error {
+        border-color: #ff4444;
+        box-shadow: 0 0 0 3px rgba(255, 68, 68, 0.1);
+      }
 
-            .go-button {
-                background: #fff;
-                color: #000;
-                border: none;
-                padding: 1.2rem 4rem;
-                font-size: 1rem;
-                font-weight: 500;
-                border-radius: 8px;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                letter-spacing: 0.05em;
-                min-width: 140px;
-                text-transform: lowercase;
-            }
+      .go-button {
+        background: #fff;
+        color: #000;
+        border: none;
+        padding: 1.2rem 4rem;
+        font-size: 1rem;
+        font-weight: 500;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        letter-spacing: 0.05em;
+        min-width: 140px;
+        text-transform: lowercase;
+      }
 
-            .go-button:hover:not(:disabled) {
-                background: #f0f0f0;
-                transform: translateY(-2px);
-                box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
-            }
+      .go-button:hover:not(:disabled) {
+        background: #f0f0f0;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+      }
 
-            .go-button:active:not(:disabled) {
-                transform: translateY(-1px);
-            }
+      .go-button:active:not(:disabled) {
+        transform: translateY(-1px);
+      }
 
-            .go-button:disabled {
-                background: #222;
-                color: #555;
-                cursor: not-allowed;
-                transform: none;
-                box-shadow: none;
-            }
+      .go-button:disabled {
+        background: #222;
+        color: #555;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
 
-            .error-message {
-                color: #ff4444;
-                font-size: 0.9rem;
-                margin-top: 0.5rem;
-                text-align: left;
-                opacity: 0;
-                transition: opacity 0.3s ease;
-            }
+      .error-message {
+        color: #ff4444;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+        text-align: left;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
 
-            .error-message.show {
-                opacity: 1;
-            }
+      .error-message.show {
+        opacity: 1;
+      }
 
-            .footer {
-                position: fixed;
-                bottom: 2rem;
-                font-size: 0.85rem;
-                color: #444;
-                text-align: center;
-                letter-spacing: 0.05em;
-            }
+      .footer {
+        position: fixed;
+        bottom: 2rem;
+        font-size: 0.85rem;
+        color: #444;
+        text-align: center;
+        letter-spacing: 0.05em;
+      }
 
-            .loading {
-                display: none;
-                margin-top: 1rem;
-                color: #888;
-                font-size: 0.9rem;
-            }
+      .loading {
+        display: none;
+        margin-top: 1rem;
+        color: #888;
+        font-size: 0.9rem;
+      }
 
-            .loading.show {
-                display: block;
-            }
+      .loading.show {
+        display: block;
+      }
 
-            @media (max-width: 768px) {
-                .brand {
-                    font-size: 2.2rem;
-                }
+      @media (max-width: 768px) {
+        .brand {
+          font-size: 2.2rem;
+        }
 
-                .container {
-                    padding: 1rem;
-                    max-width: 90%;
-                }
+        .container {
+          padding: 1rem;
+          max-width: 90%;
+        }
 
-                .go-button {
-                    padding: 1rem 3rem;
-                    width: 100%;
-                }
+        .go-button {
+          padding: 1rem 3rem;
+          width: 100%;
+        }
 
-                .url-input {
-                    padding: 1rem 1.2rem;
-                }
-            }
+        .url-input {
+          padding: 1rem 1.2rem;
+        }
+      }
 
-            @media (max-width: 480px) {
-                .brand {
-                    font-size: 1.8rem;
-                }
+      @media (max-width: 480px) {
+        .brand {
+          font-size: 1.8rem;
+        }
 
-                .subtitle {
-                    margin-bottom: 3rem;
-                }
-            }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <h1 class="brand">{{.Title}}</h1>
-            <p class="subtitle">wait, there's a thing called a gifthing?</p>
+        .subtitle {
+          margin-bottom: 3rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1 class="brand">{{.Title}}</h1>
+      <p class="subtitle">wait, there's a thing called a gifthing?</p>
 
-            <div class="input-section">
-                <input
-                    type="url"
-                    id="gifInput"
-                    class="url-input"
-                    placeholder="paste gif or mp4 url here"
-                    autocomplete="off"
-                    spellcheck="false"
-                />
-                <div class="error-message" id="errorMessage"></div>
-            </div>
+      <div class="input-section">
+        <input
+          type="url"
+          id="gifInput"
+          class="url-input"
+          placeholder="paste tenor, gif, or mp4 url here"
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <div class="error-message" id="errorMessage"></div>
+      </div>
 
-            <button class="go-button" id="goButton" disabled>go</button>
-            <div class="loading" id="loading">processing...</div>
-        </div>
+      <button class="go-button" id="goButton" disabled>go</button>
+      <div class="loading" id="loading">processing...</div>
+    </div>
 
-        <div class="footer">gifthing &copy; 2025</div>
+    <div class="footer">gifthing &copy; 2025</div>
 
-        <script type="text/javascript" src="js/main.js"></script>
-    </body>
+    <script type="text/javascript" src="js/main.js"></script>
+  </body>
 </html>
