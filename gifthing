@@ -1,5 +1,6 @@
 #!/sbin/openrc-run
 
+export TENOR_API_KEY=YOURAPIKEYHERE
 name="gifthing"
 command="/opt/gifthing"
 command_background=true

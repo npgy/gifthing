@@ -1,7 +1,8 @@
 package main
 
 type SetGifRequest struct {
-	GifURL string `json:"gifUrl"`
+	GifURL  string `json:"gifUrl"`
+	IsTenor bool   `json:"isTenor"`
 }
 
 type TenorMp4Request struct {
@@ -17,7 +18,8 @@ type MediaFormat struct {
 }
 
 type MediaFormats struct {
-	MP4 MediaFormat `json:"mp4"`
+	MP4  MediaFormat `json:"mp4"`
+	WebP MediaFormat `json:"webp"`
 }
 
 type TenorPost struct {

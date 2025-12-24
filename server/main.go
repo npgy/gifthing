@@ -12,6 +12,7 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"sync"
@@ -41,6 +42,7 @@ var t = &Template{
 
 var mpvCmd *exec.Cmd
 var mpvLock = sync.Mutex{}
+var db *DatabaseService
 
 var rootMp4Path = "/root/"
 var testMode = false
@@ -127,11 +129,64 @@ func getTenorMP4URL(tenorID string) (string, error) {
 	return mp4URL, nil
 }
 
+// getTenorWebPURL calls the Tenor API to get the WebP URL for a given Tenor ID
+func getTenorWebPURL(tenorID string) (string, error) {
+	// Construct the Tenor API URL
+	apiURL := fmt.Sprintf("https://tenor.googleapis.com/v2/posts?ids=%s&key=%s&client_key=gifthing", tenorID, os.Getenv("TENOR_API_KEY"))
+
+	// Make the HTTP request
+	resp, err := http.Get(apiURL)
+	if err != nil {
+		return "", fmt.Errorf("failed to call Tenor API: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("Tenor API returned status %d", resp.StatusCode)
+	}
+
+	// Read and parse the response
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("failed to read response body: %v", err)
+	}
+
+	var tenorResp TenorResponse
+	err = json.Unmarshal(body, &tenorResp)
+	if err != nil {
+		return "", fmt.Errorf("failed to parse JSON response: %v", err)
+	}
+
+	// Check if we have results
+	if len(tenorResp.Results) == 0 {
+		return "", fmt.Errorf("no results found for Tenor ID: %s", tenorID)
+	}
+
+	// Extract the WebP URL
+	webpURL := tenorResp.Results[0].MediaFormats.WebP.URL
+	if webpURL == "" {
+		return "", fmt.Errorf("no WebP URL found in response")
+	}
+
+	return webpURL, nil
+}
+
 func main() {
 	if os.Getenv("TESTMODE") == "true" {
 		rootMp4Path = "/Users/nick/"
 		testMode = true
 	}
+
+	// Initialize database
+	dbPath := filepath.Join(rootMp4Path, "gifthing.db")
+	var err error
+	db, err = NewDatabaseService(dbPath)
+	if err != nil {
+		slog.Error("failed to initialize database", slog.String("error", err.Error()))
+		return
+	}
+	defer db.Close()
+
 	logger, err := NewLogger()
 	if err != nil {
 		slog.Error("failed to initialize logger", slog.String("error", err.Error()))
@@ -186,7 +241,29 @@ func main() {
 			return echo.NewHTTPError(500, fmt.Sprintf("failed to get MP4 URL: %v", err))
 		}
 
+		// Get WebP URL for preview and save to database
+		go func() {
+			webpURL, err := getTenorWebPURL(tenorID)
+			if err != nil {
+				slog.Error("failed to get webp URL for preview", slog.String("error", err.Error()))
+				// Save with original URL as preview if webp fails
+				webpURL = req.TenorGifURL
+			}
+
+			if err := db.SavePreviousGif(req.TenorGifURL, webpURL); err != nil {
+				slog.Error("failed to save previous tenor gif", slog.String("error", err.Error()))
+			}
+		}()
+
 		return c.JSON(200, map[string]string{"mp4Url": mp4URL})
+	})
+
+	e.GET("/previous-gifs", func(c echo.Context) error {
+		gifs, err := db.GetPreviousGifs(50)
+		if err != nil {
+			return echo.NewHTTPError(500, "failed to get previous gifs")
+		}
+		return c.JSON(200, gifs)
 	})
 
 	e.POST("/setgif", func(c echo.Context) error {
@@ -194,6 +271,15 @@ func main() {
 		err := c.Bind(&req)
 		if err != nil {
 			return echo.NewHTTPError(400, "gifUrl not sent in body")
+		}
+
+		// Save to database only if isTenor is false
+		if !req.IsTenor {
+			go func() {
+				if err := db.SavePreviousGif(req.GifURL, req.GifURL); err != nil {
+					slog.Error("failed to save previous gif", slog.String("error", err.Error()))
+				}
+			}()
 		}
 
 		err = killMpv(logger)

@@ -57,7 +57,6 @@ function showError(message) {
   errorMessage.classList.add("show");
   gifInput.classList.add("error");
   isValidUrl = false;
-  goButton.disabled = true;
 }
 
 function hideError() {
@@ -135,7 +134,10 @@ async function sendToGifthing() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ gifUrl: finalUrl }),
+      body: JSON.stringify({
+        gifUrl: finalUrl,
+        isTenor: isTenorUrl(url),
+      }),
     });
 
     if (!res.ok) {
@@ -143,6 +145,9 @@ async function sendToGifthing() {
     }
 
     console.log("Successfully sent to gifthing");
+
+    // Refresh previous gifs list
+    setTimeout(() => loadPreviousGifs(), 500);
   } catch (error) {
     console.error("Error processing URL:", error);
     showError("Failed to process URL. Please try again.");
@@ -158,4 +163,62 @@ goButton.addEventListener("click", async () => await sendToGifthing());
 // Focus input on page load
 window.addEventListener("load", () => {
   gifInput.focus();
+  loadPreviousGifs();
 });
+
+// Load and display previous gifs
+async function loadPreviousGifs() {
+  try {
+    const response = await fetch("/previous-gifs");
+    if (!response.ok) {
+      console.error("Failed to load previous gifs:", response.status);
+      return;
+    }
+
+    const gifs = await response.json();
+    displayPreviousGifs(gifs);
+  } catch (error) {
+    console.error("Error loading previous gifs:", error);
+  }
+}
+
+// Display previous gifs in the grid
+function displayPreviousGifs(gifs) {
+  const grid = document.getElementById("previousGrid");
+
+  if (!gifs || gifs.length === 0) {
+    grid.innerHTML =
+      '<div style="grid-column: 1 / -1; text-align: center; color: #666; padding: 2rem;">No previous gifs yet</div>';
+    return;
+  }
+
+  grid.innerHTML = gifs
+    .map((gif) => {
+      const previewUrl = gif.previewUrl || gif.url;
+      const isVideo = previewUrl.toLowerCase().endsWith(".mp4");
+
+      if (isVideo) {
+        return `
+    <div class="previous-item" onclick="loadPreviousGif('${gif.url}')" title="Click to load this gif">
+      <video src="${previewUrl}" loop muted autoplay onerror="this.style.display='none'"></video>
+    </div>`;
+      } else {
+        return `
+    <div class="previous-item" onclick="loadPreviousGif('${gif.url}')" title="Click to load this gif">
+      <img src="${previewUrl}" alt="Previous gif" onerror="this.style.display='none'" />
+    </div>`;
+      }
+    })
+    .join("");
+}
+
+// Load a previous gif when clicked
+async function loadPreviousGif(url) {
+  gifInput.value = url;
+  validateAndShowError(url);
+
+  // Auto-submit if valid
+  if (isValidUrl) {
+    await sendToGifthing();
+  }
+}
