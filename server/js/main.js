@@ -200,7 +200,7 @@ function displayPreviousGifs(gifs) {
       if (isVideo) {
         return `
     <div class="previous-item" onclick="loadPreviousGif('${gif.url}')" title="Click to load this gif">
-      <video src="${previewUrl}" loop muted autoplay onerror="this.style.display='none'"></video>
+      <video src="${previewUrl}" loop muted playsinline onerror="this.style.display='none'"></video>
     </div>`;
       } else {
         return `
