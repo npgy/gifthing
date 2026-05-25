@@ -27,6 +27,13 @@ Update `wpa_supplicant.conf` with your wifi SSID and password.
 
 Run `setup-alpine`
 
+Enter `gifthing` for system name.  
+Most other things will be the default value.  
+Generate new SSH keypair.
+`ssh-keygen -t ed25519`.
+Paste the public key when the installer prompt asks for it.
+Install in `sys` mode
+
 Update apk packages  
 `apk update && apk upgrade`
 
@@ -61,7 +68,9 @@ To add `gifthing` to the init system
 Copy it to `/etc/init.d/gifthing`
 
 Add it to the default runlevel  
-`rc-update add gifthing`
+`rc-update add gifthing boot`  
+Clear openrc cache (why is this needed lol)  
+`rc-update -u`
 
 Add `console=serial0 vt.global_cursor_default=0` to the end of `/boot/cmdline.txt`
 
